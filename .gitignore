@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+docs/Thumbs.db
+docs/~$ComponentDocs.pptx
+docs/.ipynb_checkpoints/
+
