@@ -3,29 +3,27 @@ from pt_operations import rotate_pts, rotate_pt
 from junction import Junction
 from component import Component
 
-class CPWStraight(Component):
+class CStraight(Component):
     """
-    A straight section of CPW transmission line
+    A straight section of channel (its a rectangle)
     """
     
     _defaults = {}
-    _defaults['length'] = 100
-    _defaults['pinw'] = 20
-    _defaults['gapw'] = 8.372
+    _defaults['length'] = 200
+    _defaults['width'] = 50
     
     def __init__(self,structure,startjunc=None,settings={}, cxns_names = ['in','out']):
         """ Adds a straight section of CPW transmission line of length = length to the structure"""        
         s=structure
         
-        comp_key = 'CPWStraight'
-        global_keys = ['pinw','gapw']
-        object_keys = ['pinw','gapw'] # which correspond to the extract global_keys
+        comp_key = 'CStraight'
+        global_keys = ['channel_width']
+        object_keys = ['width'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
         settings = self.settings
         
-        length = settings['length']
-        pinw = settings['pinw']
-        gapw = settings['gapw']
+        length = self.length
+        width=self.width
                 
         if startjunc is None: startjunc=s.last.copyjunc()
         
@@ -35,22 +33,14 @@ class CPWStraight(Component):
 
         coords = startjunc.coords
         
-        gap1=[  (coords[0],coords[1]+pinw/2),
-                (coords[0]+length,coords[1]+pinw/2),
-                (coords[0]+length,coords[1]+pinw/2+gapw),
-                (coords[0],coords[1]+pinw/2+gapw),
-                (coords[0],coords[1]+pinw/2)
-                ]
-
-        gap2=[  (coords[0],coords[1]-pinw/2),
-                (coords[0]+length,coords[1]-pinw/2),
-                (coords[0]+length,coords[1]-pinw/2-gapw),
-                (coords[0],coords[1]-pinw/2-gapw),
-                (coords[0],coords[1]-pinw/2)
+        gap1=[  (coords[0],coords[1]+width/2),
+                (coords[0]+length,coords[1]+width/2),
+                (coords[0]+length,coords[1]-width/2),
+                (coords[0],coords[1]-width/2),
+                (coords[0],coords[1]+width/2)
                 ]
         
         gap1=rotate_pts(gap1,startjunc.direction,coords)
-        gap2=rotate_pts(gap2,startjunc.direction,coords)
         
         stop_coords=rotate_pt((coords[0]+length,coords[1]),startjunc.direction,coords)
         stopjunc=Junction(stop_coords,startjunc.direction)
@@ -58,7 +48,6 @@ class CPWStraight(Component):
         s.last = stopjunc.copyjunc()
         
         s.drawing.add_lwpolyline(gap1)
-        s.drawing.add_lwpolyline(gap2)
 
         startjunc = startjunc.reverse()
                 

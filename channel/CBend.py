@@ -4,9 +4,9 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-class CPWBend(Component):
+class CBend(Component):
     """
-    creates a CPW bend with pinw/gapw/radius
+    creates a channel bend with radius and width
             
     turn_angle: turn_angle is in degrees, positive is CCW, negative is CW
     polyarc: True/False, True draws CPWBend as a polyline, False as arcs and lines
@@ -16,9 +16,8 @@ class CPWBend(Component):
     
     _defaults = {}
     _defaults['turn_angle'] = 90
-    _defaults['pinw'] = 20
-    _defaults['gapw'] = 8.372
-    _defaults['radius'] = 100
+    _defaults['width'] = 50
+    _defaults['radius'] = 500
     _defaults['polyarc'] = True
     _defaults['segments'] = 180
     
@@ -28,9 +27,9 @@ class CPWBend(Component):
         s=structure
 #        print('radius',radius)
 
-        comp_key = 'CPWBend'
-        global_keys = ['pinw','gapw','radius']
-        object_keys = ['pinw','gapw','radius'] # which correspond to the extract global_keys
+        comp_key = 'CBend'
+        global_keys = ['channel_width','radius']
+        object_keys = ['width','radius'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
         settings = self.settings
         
@@ -116,14 +115,9 @@ class CPWBend(Component):
         #lower gap
         num_segments = np.abs(np.round(self.segments*self.turn_angle/360)).astype(int) #based on what proportion of 360 the subtended angle is
 
-        pts1=arc_pts(self.astart_angle,self.astop_angle,self.radius+self.pinw/2.+self.gapw,num_segments)
-        pts1.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius+self.pinw/2.,num_segments))
+        pts1=arc_pts(self.astart_angle,self.astop_angle,self.radius+self.width/2,num_segments)
+        pts1.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius-self.width/2,num_segments))
         pts1.append(pts1[0])
        
-        pts2=arc_pts(self.astart_angle,self.astop_angle,self.radius-self.pinw/2.,num_segments)
-        pts2.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius-self.pinw/2.-self.gapw,num_segments))
-        pts2.append(pts2[0])
       
-        self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))
-        self.structure.drawing.add_lwpolyline(translate_pts(pts2,self.center))
-        
+        self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))        

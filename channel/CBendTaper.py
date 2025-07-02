@@ -4,9 +4,9 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-class CPWBend_AB(Component):
+class CBendTaper(Component):
     """
-    creates a CPW bend with pinw/gapw/radius
+    creates a channel bend with changing width
             
     turn_angle: turn_angle is in degrees, positive is CCW, negative is CW
     polyarc: True/False, True draws CPWBend as a polyline, False as arcs and lines
@@ -16,15 +16,11 @@ class CPWBend_AB(Component):
     
     _defaults = {}
     _defaults['turn_angle'] = 90
-    _defaults['pinw'] = 20
-    _defaults['gapw'] = 8.372
-    _defaults['radius'] = 100
+    _defaults['start_width'] = 50
+    _defaults['stop_width'] = 50
+    _defaults['radius'] = 500
     _defaults['polyarc'] = True
     _defaults['segments'] = 180
-    _defaults['ABwidth'] = 40
-    _defaults['ABheight'] = 40
-    _defaults['ABlength'] = 60 # or 50
-    _defaults['ABstep2gap'] = 5
     
     def __init__(self,structure,startjunc=None,settings={},cxns_names=['in','out']):
         #load default values if necessary
@@ -32,9 +28,9 @@ class CPWBend_AB(Component):
         s=structure
 #        print('radius',radius)
 
-        comp_key = 'CPWBend'
-        global_keys = ['pinw','gapw','radius','ABwidth','ABheight','ABlength','ABstep2gap']
-        object_keys = ['pinw','gapw','radius','ABwidth','ABheight','ABlength','ABstep2gap'] # which correspond to the extract global_keys
+        comp_key = 'CBendTaper'
+        global_keys = ['channel_width','channel_width','radius']
+        object_keys = ['start_width','stop_width','radius'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
         settings = self.settings
         
@@ -59,49 +55,13 @@ class CPWBend_AB(Component):
         #also it only knows about arcs with CCW sense to them, so we have to rotate our angles appropriately
         self.astart_angle=self.start_angle-self.asign*90
         self.astop_angle=self.stop_angle-self.asign*90
-
-        
-        #calculate location of Arc center / AB gaps
+        #calculate location of Arc center
         self.center=rotate_pt( (self.start[0],self.start[1]+self.asign*self.radius),self.start_angle,self.start)
-        if self.turn_angle == 90 or self.turn_angle == 180 or self.turn_angle == -90 or self.turn_angle == -180:
-            if self.radius >= 150:
-            #AB gap 
-                self.gap1 =[(self.start[0]-self.ABwidth/2,self.start[1]+self.ABlength/2),
-                            (self.start[0]+self.ABwidth/2,self.start[1]+self.ABlength/2),
-                            (self.start[0]+self.ABwidth/2,self.start[1]+self.ABlength/2+self.ABheight),
-                            (self.start[0]-self.ABwidth/2,self.start[1]+self.ABlength/2+self.ABheight),
-                            (self.start[0]-self.ABwidth/2,self.start[1]+self.ABlength/2)]
-        
-                self.gap2 =[(self.start[0]-self.ABwidth/2,self.start[1]-self.ABlength/2),
-                            (self.start[0]+self.ABwidth/2,self.start[1]-self.ABlength/2),
-                            (self.start[0]+self.ABwidth/2,self.start[1]-self.ABlength/2-self.ABheight),
-                            (self.start[0]-self.ABwidth/2,self.start[1]-self.ABlength/2-self.ABheight),
-                            (self.start[0]-self.ABwidth/2,self.start[1]-self.ABlength/2)]
-                
-                self.gap3 =[(self.start[0]-self.ABwidth/2-self.ABstep2gap,self.start[1]+self.ABlength/2+self.ABheight+self.ABstep2gap),
-                            (self.start[0]+self.ABwidth/2+self.ABstep2gap,self.start[1]+self.ABlength/2+self.ABheight+self.ABstep2gap),
-                            (self.start[0]+self.ABwidth/2+self.ABstep2gap,self.start[1]-self.ABlength/2-self.ABheight-self.ABstep2gap),
-                            (self.start[0]-self.ABwidth/2-self.ABstep2gap,self.start[1]-self.ABlength/2-self.ABheight-self.ABstep2gap),
-                            (self.start[0]-self.ABwidth/2-self.ABstep2gap,self.start[1]+self.ABlength/2+self.ABheight+self.ABstep2gap)]
-                
-
-                self.gap1=rotate_pts(self.gap1,self.start_angle,self.start)
-                self.gap2=rotate_pts(self.gap2,self.start_angle,self.start)
-                self.gap3=rotate_pts(self.gap3,self.start_angle,self.start)
-                self.gap1=rotate_pts(self.gap1,self.turn_angle/2,self.center)
-                self.gap2=rotate_pts(self.gap2,self.turn_angle/2,self.center)
-                self.gap3=rotate_pts(self.gap3,self.turn_angle/2,self.center)
-                self.structure.drawing.add_lwpolyline(self.gap1)
-                self.structure.drawing.add_lwpolyline(self.gap2)
-                self.structure.drawing.add_lwpolyline(self.gap3)
         
         if self.polyarc: self.poly_arc_bend()
         else:       self.arc_bend()
 
-
-
         self.stop=rotate_pt(self.start,self.stop_angle-self.start_angle,self.center)
-
         self.structure.last = Junction(self.stop,self.stop_angle)
         
         self.cxns = {cxns_names[0]:Junction(self.start,self.start_angle+180),cxns_names[1]:Junction(self.stop,self.stop_angle)}
@@ -155,16 +115,21 @@ class CPWBend_AB(Component):
     
         #lower gap
         num_segments = np.abs(np.round(self.segments*self.turn_angle/360)).astype(int) #based on what proportion of 360 the subtended angle is
-
-        pts1=arc_pts(self.astart_angle,self.astop_angle,self.radius+self.pinw/2.+self.gapw,num_segments)
-        pts1.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius+self.pinw/2.,num_segments))
+        
+        def taper_arc_pts(start_angle,stop_angle,r1,r2,segments=360):
+            pts=[]
+            for ii in range(segments):
+                try:
+                    theta=(start_angle+ii/(segments-1.)*(stop_angle-start_angle))*np.pi/180.
+                except:
+                    print(stop_angle-start_angle)
+                r = r1 + (r2-r1)*((theta*180/np.pi)-start_angle)/(stop_angle-start_angle)
+                p=(r*np.cos(theta),r*np.sin(theta))
+                pts.append(p)
+            return pts
+        
+        pts1=taper_arc_pts(self.astart_angle,self.astop_angle,self.radius+self.start_width/2.,self.radius+self.stop_width/2.,num_segments)
+        pts1.extend(taper_arc_pts(self.astop_angle,self.astart_angle,self.radius-self.stop_width/2.,self.radius-self.start_width/2.,num_segments))
         pts1.append(pts1[0])
-       
-        pts2=arc_pts(self.astart_angle,self.astop_angle,self.radius-self.pinw/2.,num_segments)
-        pts2.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius-self.pinw/2.-self.gapw,num_segments))
-        pts2.append(pts2[0])
       
-        self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))
-        self.structure.drawing.add_lwpolyline(translate_pts(pts2,self.center))
-        
-        
+        self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))    

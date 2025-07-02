@@ -11,7 +11,7 @@ site_directory = get_python_lib()
 
 package_directory = os.getcwd()
 
-filepath = os.path.join(site_directory,"MaskMaker.pth")
+filepath = os.path.join(site_directory,"FlowMaker.pth")
 
 print(site_directory)
 print(package_directory)
