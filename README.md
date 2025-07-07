@@ -8,12 +8,8 @@ Requires:
 <hr>
 Author:
 
-Scarcelli Lab, University of Maryland, College Park
-
-Theo Gifford
+Theo Gifford, Scarcelli Lab, University of Maryland, College Park
 
 MaskMaker authors:
 
-Koll&aacute;r Lab, University of Maryland, College Park
-
-Authors: Theo Gifford and Martin Ritter
+Theo Gifford and Martin Ritter, Koll&aacute;r Lab, University of Maryland, College Park
