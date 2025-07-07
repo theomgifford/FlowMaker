@@ -49,5 +49,4 @@ class CStraightTaper(Component):
         stopjunc = Junction(stop_coords,startjunc.direction)
         s.last=stopjunc.copyjunc()
         
-        startjunc.direction = startjunc.direction - 180
-        self.cxns = {cxns_names[0]:startjunc, cxns_names[1]:stopjunc}
+        self.cxns = {cxns_names[0]:startjunc.reverse(), cxns_names[1]:stopjunc}

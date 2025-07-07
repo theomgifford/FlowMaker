@@ -23,7 +23,7 @@ class Junction():
         
     """
     def __init__(self,coords,direction):
-        if type(coords) == tuple and (type(direction) == float or type(direction) == int):
+        if isinstance(coords,tuple) and isinstance(direction, (int, float, np.integer, np.floating)):
             if len(coords) == 2:
                 if (np.isscalar(coords[0]) == True) and (np.isscalar(coords[1]) == True):
                     self.coords = coords

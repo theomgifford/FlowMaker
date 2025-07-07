@@ -64,6 +64,12 @@ class ChipBorder:
     def __init__(self,structure):
         
         s=structure
-        
-        pts = [(0,0),(0,s.size),(s.size,s.size),(s.size,0),(0,0)]  
+        if type(s.size) is tuple:
+            x = s.size[0]
+            y = s.size[1]
+        else:
+            x = s.size
+            y = s.size
+        # not the most robust but whatever
+        pts = [(0,0),(0,y),(x,y),(x,0),(0,0)]  
         s.drawing.add_lwpolyline(pts)

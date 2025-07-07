@@ -64,7 +64,7 @@ class CBendTaper(Component):
         self.stop=rotate_pt(self.start,self.stop_angle-self.start_angle,self.center)
         self.structure.last = Junction(self.stop,self.stop_angle)
         
-        self.cxns = {cxns_names[0]:Junction(self.start,self.start_angle+180),cxns_names[1]:Junction(self.stop,self.stop_angle)}
+        self.cxns = {cxns_names[0]:startjunc.reverse(),cxns_names[1]:Junction(self.stop,self.stop_angle)}
 
     def arc_bend(self):
         print("polyarc = False no longer supported!")

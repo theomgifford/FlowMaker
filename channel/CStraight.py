@@ -48,8 +48,6 @@ class CStraight(Component):
         s.last = stopjunc.copyjunc()
         
         s.drawing.add_lwpolyline(gap1)
-
-        startjunc = startjunc.reverse()
                 
-        self.cxns = {cxns_names[0]:startjunc, cxns_names[1]:stopjunc}
+        self.cxns = {cxns_names[0]:startjunc.reverse(), cxns_names[1]:stopjunc}
 

@@ -13,8 +13,8 @@ class CSharpTurn(Component):
     
     _defaults = {}
     _defaults['turn_angle'] = 90
-    _defaults['width_1'] = 50
-    _defaults['width_2'] = 50
+    _defaults['start_width'] = 50
+    _defaults['stop_width'] = 50
 
     
     def __init__(self, structure,startjunc=None, settings = {}, cxns_names=['in','out']):
@@ -23,7 +23,7 @@ class CSharpTurn(Component):
         
         comp_key = 'CSharpTurn'
         global_keys = ['channel_width','channel_width']
-        object_keys = ['width_1','width_2'] # which correspond to the extract global_keys
+        object_keys = ['start_width','stop_width'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
         settings = self.settings
         
@@ -32,19 +32,18 @@ class CSharpTurn(Component):
         if self.turn_angle==0:
             s.last = startjunc.copyjunc()
             return
-        if self.width_1 <= self.width_2:
-            interwidth = np.abs(self.width_1/np.cos(0.5*self.turn_angle*np.pi/180))
-        elif self.width_1 > self.width_2:
-            interwidth = np.abs(self.width_2/np.cos(0.5*self.turn_angle*np.pi/180))
+        if self.start_width <= self.stop_width:
+            interwidth = np.abs(self.start_width/np.cos(0.5*self.turn_angle*np.pi/180))
+        elif self.start_width > self.stop_width:
+            interwidth = np.abs(self.stop_width/np.cos(0.5*self.turn_angle*np.pi/180))
         else:
             print("how did we get here")
             return
-        # interwidth = self.width_1
-        CTriBend(s,settings={'width_1':self.width_1,'width_2':interwidth,'turn_angle':self.turn_angle/2})
-        CTriBend(s,settings={'width_1':interwidth,'width_2':self.width_2,'turn_angle':self.turn_angle/2})
+        # interwidth = self.start_width
+        CTriBend(s,settings={'start_width':self.start_width,'stop_width':interwidth,'turn_angle':self.turn_angle/2})
+        CTriBend(s,settings={'start_width':interwidth,'stop_width':self.stop_width,'turn_angle':self.turn_angle/2})
         
         #update last anchor position
         stopjunc = s.last.copyjunc()
         
-        startjunc.direction = startjunc.direction - 180
-        self.cxns = {cxns_names[0]:startjunc, cxns_names[1]:stopjunc}
+        self.cxns = {cxns_names[0]:startjunc.reverse(), cxns_names[1]:stopjunc}
