@@ -4,11 +4,11 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-from channel.CSharpTurn import CSharpTurn
-from channel.CTriTurn import CTriTurn
+from channel.CSharpBend import CSharpBend
+# from channel.CTriTurn import CTriTurn
 from channel.CStraight import CStraight
 
-class SimpleSharpConnector(Component):
+class SimpleBendConnector(Component):
     """A sharp turn, created from two CTriTurn
     
     """
@@ -23,7 +23,7 @@ class SimpleSharpConnector(Component):
         #load attributes
         s=structure
         
-        comp_key = 'SimpleSharpConnector'
+        comp_key = 'SimpleBendConnector'
         global_keys = ['channel_width']
         object_keys = ['width'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
@@ -55,7 +55,7 @@ class SimpleSharpConnector(Component):
                 
         CStraight(s,startjunc=startjunc,settings={'width':self.width,'length':length_1})
         # print(-(180-theta_d))
-        CSharpTurn(s,settings={'start_width':self.width,'stop_width':self.width,'turn_angle':-(180-theta_d)})
+        CSharpBend(s,settings={'width':self.width,'turn_angle':-(180-theta_d)})
         CStraight(s,settings={'width':self.width,'length':length_2})
         
         

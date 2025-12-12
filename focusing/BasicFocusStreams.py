@@ -5,8 +5,7 @@ from component import Component
 import numpy as np
 
 from channel.CStraightTaper import CStraightTaper
-from channel.CStraight import CStraight
-from channel.CTriBend import CTriBend
+from channel.CTriTurn import CTriTurn
 
 class BasicFocusStreams(Component):
     """A basic intersection of one sample channel and two focusing streams
@@ -16,10 +15,12 @@ class BasicFocusStreams(Component):
     _defaults = {}
     _defaults['samp_width'] = 50 # width @ dispersed phase input
     _defaults['out_width'] = 50 # width @ formed droplet output
-    _defaults['focus_width'] = 50 # width @ formed droplet output
+    _defaults['focus_width'] = 50 # width @ focus channel inputs
     _defaults['focus_angle'] = 15 # angle of focus channels
     
-    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=['samp','out','focus_1','focus_2']):
+    _cxns_names = ['samp','out','focus_1','focus_2']
+    
+    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=_cxns_names):
         #load attributes
         s=structure
         
@@ -54,10 +55,10 @@ class BasicFocusStreams(Component):
         
         side_length = self.focus_width/np.sin((self.focus_angle+phi)*np.pi/180)
         
-        CTriBend(s,startjunc=junc1,settings={'start_width':side_length,'stop_width':self.focus_width,'turn_angle':90-self.focus_angle-phi})
+        CTriTurn(s,startjunc=junc1,settings={'start_width':side_length,'stop_width':self.focus_width,'turn_angle':90-self.focus_angle-phi})
         self.cxns[cxns_names[2]] = s.last.copyjunc()
 
-        CTriBend(s,startjunc=junc2,settings={'start_width':side_length,'stop_width':self.focus_width,'turn_angle':-(90-self.focus_angle-phi)})
+        CTriTurn(s,startjunc=junc2,settings={'start_width':side_length,'stop_width':self.focus_width,'turn_angle':-(90-self.focus_angle-phi)})
         self.cxns[cxns_names[3]] = s.last.copyjunc()
         
         s.last = self.cxns[cxns_names[1]]

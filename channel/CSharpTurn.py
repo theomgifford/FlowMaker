@@ -4,10 +4,10 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-from channel.CTriBend import CTriBend
+from channel.CTriTurn import CTriTurn
 
 class CSharpTurn(Component):
-    """A sharp turn, created from two CTriBend
+    """A sharp turn, created from two CTriTurn
     
     """
     
@@ -29,6 +29,8 @@ class CSharpTurn(Component):
         
         if startjunc is None: startjunc=s.last.copyjunc()
         
+        self.turn_angle = (self.turn_angle + 180) % 360 - 180
+        
         if self.turn_angle==0:
             s.last = startjunc.copyjunc()
             return
@@ -40,9 +42,9 @@ class CSharpTurn(Component):
             print("how did we get here")
             return
         # interwidth = self.start_width
-        CTriBend(s,settings={'start_width':self.start_width,'stop_width':interwidth,'turn_angle':self.turn_angle/2})
-        CTriBend(s,settings={'start_width':interwidth,'stop_width':self.stop_width,'turn_angle':self.turn_angle/2})
-        
+        CTriTurn(s,startjunc=startjunc,settings={'start_width':self.start_width,'stop_width':interwidth,'turn_angle':self.turn_angle/2})
+        CTriTurn(s,settings={'start_width':interwidth,'stop_width':self.stop_width,'turn_angle':self.turn_angle/2})
+                
         #update last anchor position
         stopjunc = s.last.copyjunc()
         

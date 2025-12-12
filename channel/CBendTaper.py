@@ -132,4 +132,5 @@ class CBendTaper(Component):
         pts1.extend(taper_arc_pts(self.astop_angle,self.astart_angle,self.radius-self.stop_width/2.,self.radius-self.start_width/2.,num_segments))
         pts1.append(pts1[0])
       
-        self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))    
+        if self.structure.global_write and self.structure.local_write:
+            self.structure.drawing.add_lwpolyline(translate_pts(pts1,self.center))    

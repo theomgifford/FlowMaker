@@ -40,8 +40,9 @@ class BasicInlet(Component):
     _defaults['type'] = 'auto'
     _defaults['segments'] = 180
     
-
-    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=['out']):
+    _cxns_names = ['out']
+    
+    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=_cxns_names):
         #load attributes
         s=structure
         
@@ -70,7 +71,9 @@ class BasicInlet(Component):
         pts=arc_pts(-90,90,self.body_width/2,num_segments)
         pts.append(pts[0])
         pts=orient_pts(pts,s.last.direction,s.last.coords)
-        s.drawing.add_lwpolyline(pts)  
+        
+        if s.global_write and s.local_write:
+            s.drawing.add_lwpolyline(pts)  
         
         s.last = startjunc.copyjunc()
         self.cxns = {cxns_names[0]:startjunc.copyjunc()}

@@ -4,9 +4,10 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-class CBend(Component):
+class CSharpBend(Component):
     """
-    creates a channel bend with radius and width
+    creates a channel bend with radius=width/2
+    Draws two lines connected by an arc (inner radius = 0)
             
     turn_angle: turn_angle is in degrees, positive is CCW, negative is CW
     polyarc: True/False, True draws CPWBend as a polyline, False as arcs and lines
@@ -17,7 +18,6 @@ class CBend(Component):
     _defaults = {}
     _defaults['turn_angle'] = 90
     _defaults['width'] = 50
-    _defaults['radius'] = 500
     _defaults['polyarc'] = True
     _defaults['segments'] = 180
     
@@ -27,7 +27,7 @@ class CBend(Component):
         s=structure
 #        print('radius',radius)
 
-        comp_key = 'CBend'
+        comp_key = 'CSharpBend'
         global_keys = ['channel_width','radius']
         object_keys = ['width','radius'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
@@ -42,7 +42,9 @@ class CBend(Component):
         if self.turn_angle==0:
             s.last = startjunc.copyjunc()
             return
-
+        
+        self.radius = self.width/2
+        
         self.start=startjunc.coords
         self.start_angle=startjunc.direction
         self.stop_angle=self.start_angle+self.turn_angle
@@ -118,7 +120,7 @@ class CBend(Component):
         num_segments = np.abs(np.round(self.segments*self.turn_angle/360)).astype(int) #based on what proportion of 360 the subtended angle is
 
         pts1=arc_pts(self.astart_angle,self.astop_angle,self.radius+self.width/2,num_segments)
-        pts1.extend(arc_pts(self.astop_angle,self.astart_angle,self.radius-self.width/2,num_segments))
+        pts1.append((0,0))
         pts1.append(pts1[0])
        
         if self.structure.global_write and self.structure.local_write:

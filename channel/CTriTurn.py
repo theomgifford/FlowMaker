@@ -3,7 +3,7 @@ from junction import Junction
 from component import Component
 import numpy as np
 
-class CTriBend(Component):
+class CTriTurn(Component):
     """Creates a triangle that bends the track while changes width
     
     start_width: starting width (length of one side of triangle)
@@ -17,12 +17,13 @@ class CTriBend(Component):
     _defaults['stop_width'] = 50
     _defaults['turn_angle'] = 90
 
+    _cxns_names = ['in','out']
     
-    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=['in','out']):
+    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=_cxns_names):
         #load attributes
         s=structure
         
-        comp_key = 'CTriBend'
+        comp_key = 'CTriTurn'
         global_keys = ['channel_width','channel_width']
         object_keys = ['start_width','stop_width'] # which correspond to the extract global_keys
         Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
@@ -30,13 +31,14 @@ class CTriBend(Component):
         
         if startjunc is None: startjunc=s.last.copyjunc()
         
+        self.turn_angle = (self.turn_angle + 180) % 360 - 180
+        
         if self.turn_angle==0:
             s.last = startjunc.copyjunc()
             return
         
         coords = startjunc.coords
         #define geometry of gaps
-        self.turn_angle = (self.turn_angle + 180) % 360 - 180
         y = np.sign(self.turn_angle)*(self.start_width/2-self.stop_width*np.cos(self.turn_angle*np.pi/180))
         y_out = np.sign(self.turn_angle)*(self.start_width/2-self.stop_width*np.cos(self.turn_angle*np.pi/180)/2)
         x = np.abs(self.stop_width*np.sin(self.turn_angle*np.pi/180))
@@ -53,7 +55,8 @@ class CTriBend(Component):
         triangle=rotate_pts(triangle,startjunc.direction,coords)
 
         #create polylines and append to drawing
-        s.drawing.add_lwpolyline(triangle)
+        if s.global_write and s.local_write:
+            s.drawing.add_lwpolyline(triangle)
         
         #update last anchor position
         stop_coords=rotate_pt((coords[0]+x/2,coords[1]+y_out),startjunc.direction,coords)

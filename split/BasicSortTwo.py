@@ -6,7 +6,7 @@ import numpy as np
 
 from channel.CStraightTaper import CStraightTaper
 from channel.CStraight import CStraight
-from channel.CTriBend import CTriBend
+from channel.CTriTurn import CTriTurn
 
 class BasicSortTwo(Component):
     """A basic V-sorter
@@ -41,9 +41,9 @@ class BasicSortTwo(Component):
         startjunc1 = Junction(orient_pt((0,taper_width/4),s.last.direction,s.last.coords),s.last.direction)
         startjunc2 = Junction(orient_pt((0,-taper_width/4),s.last.direction,s.last.coords),s.last.direction)
 
-        CTriBend(s,startjunc=startjunc2,settings={'start_width':taper_width/2,'stop_width':self.out_width,'turn_angle':-self.split_angle})
+        CTriTurn(s,startjunc=startjunc2,settings={'start_width':taper_width/2,'stop_width':self.out_width,'turn_angle':-self.split_angle})
         self.cxns[cxns_names[2]] = s.last.copyjunc()
         
-        CTriBend(s,startjunc=startjunc1,settings={'start_width':taper_width/2,'stop_width':self.out_width,'turn_angle':self.split_angle})
+        CTriTurn(s,startjunc=startjunc1,settings={'start_width':taper_width/2,'stop_width':self.out_width,'turn_angle':self.split_angle})
         self.cxns[cxns_names[1]] = s.last.copyjunc()
 

@@ -45,5 +45,5 @@ class Junction():
         net_direction = (self.direction + direction) % 360
         return Junction((self.coords[0]+coords[0],self.coords[1]+coords[1]),net_direction)
     def reverse(self):
-        net_direction = (self.direction + 180) % 360
+        net_direction = self.direction % 360 - 180
         return Junction(self.coords,net_direction)

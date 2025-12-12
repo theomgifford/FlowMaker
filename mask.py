@@ -51,6 +51,9 @@ class Chip:
         self.size = size
         self.defaults = {}
         
+        self.global_write = True
+        self.local_write = True
+        
         self.doc = ezdxf.new("R2010")
         self.drawing = self.doc.modelspace()
         
@@ -71,5 +74,5 @@ class ChipBorder:
             x = s.size
             y = s.size
         # not the most robust but whatever
-        pts = [(0,0),(0,y),(x,y),(x,0),(0,0)]  
+        pts = [(-x/2,-y/2),(x/2,-y/2),(x/2,y/2),(-x/2,y/2),(-x/2,-y/2)]  
         s.drawing.add_lwpolyline(pts)
