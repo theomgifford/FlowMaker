@@ -45,8 +45,8 @@ class SimpleSharpConnector(Component):
         theta_a = 180-self.target_junc.direction-theta_3
         theta_b = startjunc.direction+theta_3
 
-        a = np.sin(theta_a*np.pi/180)*d/np.sin(theta_d*np.pi/180)
-        b = np.sin(theta_b*np.pi/180)*d/np.sin(theta_d*np.pi/180)
+        a = np.abs(np.sin(theta_a*np.pi/180)*d/np.sin(theta_d*np.pi/180))
+        b = np.abs(np.sin(theta_b*np.pi/180)*d/np.sin(theta_d*np.pi/180))
         
         length_turn = np.abs(0.5*self.width/np.tan(theta_d/2*np.pi/180))
         

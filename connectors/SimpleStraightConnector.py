@@ -18,6 +18,7 @@ class SimpleStraightConnector(Component):
     _defaults = {}
     _defaults['target_junc'] = None
     _defaults['width'] = 50
+    _defaults['tol'] = 1e-11
 
     _cxns_names = ['in','out']
     
@@ -45,7 +46,10 @@ class SimpleStraightConnector(Component):
         
         coords_dir0 = rotate_pt((x_diff,y_diff),-startjunc.direction)
         
-        if abs(coords_dir0[1]) >= 1e-12 or abs((startjunc.direction-self.target_junc.direction) % 180) >= 1e-12:
+        # print(coords_dir0[0])
+        # print(coords_dir0[1])
+        # print(abs((startjunc.direction-self.target_junc.direction) % 180))
+        if abs(coords_dir0[1]) >= self.tol or abs((startjunc.direction-self.target_junc.direction) % 180) >= self.tol:
             print("Junctions not aligned!")
             return
         

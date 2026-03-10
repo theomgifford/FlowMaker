@@ -27,12 +27,11 @@ class Let(Component):
         if type is 'end'
             the Let is an ending Let
     """
-    def __init__(self, structure, settings, startjunc, cxns_names):
+    def __init__(self, structure, startjunc, settings, comp_key):
         
-        comp_key = 'Let'
         global_keys = ['channel_width']
         object_keys = ['width_cxn'] # which correspond to the extract global_keys
-        Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
+        super().__init__(structure,comp_key,global_keys,object_keys,settings)
         
         s = structure
         

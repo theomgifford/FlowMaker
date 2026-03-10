@@ -23,9 +23,10 @@ class CrossGenerator(Component):
     _defaults['neck_length_drop'] = 50 # length of output neck
     _defaults['taper_length_drop'] = 50 # length of output taper
     _defaults['length_cont'] = 200 # length of continuous section (centered)
-
     
-    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=['disp','drop','cont_1','cont_2']):
+    _cxns_names = ['disp','drop','cont_1','cont_2']
+    
+    def __init__(self, structure,startjunc=None, settings = {}, cxns_names=_cxns_names):
         #load attributes
         s=structure
         

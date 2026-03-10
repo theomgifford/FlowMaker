@@ -27,10 +27,12 @@ class PiezoSortRegion(Component):
 
     _defaults['minimum_wall_thickness'] = 100
     _defaults['wide_region_length'] = 300
-    _defaults['piezo_angle'] = 45
+    _defaults['piezo_taper_length'] = 100
     
     _defaults['filter_channel_width'] = 10
     _defaults['filter_channel_spacing'] = 40
+    
+    _defaults['layer'] = 0
     
     _cxns_names = ['in','piezo_1','piezo_2','sort_1','sort_2','waste']
     
@@ -74,7 +76,7 @@ class PiezoSortRegion(Component):
         num_fc = int(np.floor((self.straight_length+self.extra_length) / total_fc_width))
         
         fc_height = self.minimum_wall_thickness + self.extra_length * np.tan(self.sort_angle*np.pi/180)
-        
+                
         def get_fc_y_pos(x):
             
             if x <= self.straight_length:
@@ -82,6 +84,7 @@ class PiezoSortRegion(Component):
             else:
                 return (x-self.straight_length)*np.tan(self.sort_angle*np.pi/180)
         
+        first_cc_x = None
         for i in range(num_fc):
             
             x1 = i*total_fc_width
@@ -121,6 +124,9 @@ class PiezoSortRegion(Component):
                 s.drawing.add_lwpolyline(fc_lower)
                 
             if (x1 - (self.straight_length+self.sort_three.length))*np.tan(self.sort_angle*np.pi/180) > self.minimum_wall_thickness:
+                if first_cc_x is None:
+                    first_cc_x = x1
+                
                 cc_upper = [
                     (x1,self.waste_width/2),
                     (x1,self.waste_width/2+(x1-self.straight_length-self.sort_three.length)*np.tan(self.sort_angle*np.pi/180)),
@@ -143,8 +149,48 @@ class PiezoSortRegion(Component):
                 if s.global_write:
                     s.drawing.add_lwpolyline(cc_upper)
                     s.drawing.add_lwpolyline(cc_lower)
-        x_first = 0
-        x_last = num_fc*total_fc_width + self.filter_channel_width
         
-        upjunc = Junction(orient_pt(((x_last-x_first)/2,fc_height+self.in_width/2),startjunc.direction,startjunc.coords),90+startjunc.direction)
+        if self.layer == 0:
+            if not first_cc_x is None:            
+                tri_upper = [
+                    (self.straight_length+self.sort_three.length,self.waste_width/2),
+                    (first_cc_x,self.waste_width/2+(first_cc_x-self.straight_length-self.sort_three.length)*np.tan(self.sort_angle*np.pi/180)),
+                    (first_cc_x,self.waste_width/2),
+                    ]
+                tri_lower = [
+                    (self.straight_length+self.sort_three.length,-self.waste_width/2),
+                    (first_cc_x,-self.waste_width/2-(first_cc_x-self.straight_length-self.sort_three.length)*np.tan(self.sort_angle*np.pi/180)),
+                    (first_cc_x,-self.waste_width/2),
+                    ]
+                
+                tri_upper.append(tri_upper[0])
+                tri_upper = orient_pts(tri_upper,startjunc.direction,startjunc.coords)
+                
+                tri_lower.append(tri_lower[0])
+                tri_lower = orient_pts(tri_lower,startjunc.direction,startjunc.coords)
+                
+                if s.global_write:
+                    s.drawing.add_lwpolyline(tri_upper)
+                    s.drawing.add_lwpolyline(tri_lower)
+        
+        x_first = 0
+        x_last = (num_fc-1)*total_fc_width + self.filter_channel_width
+        fan_width = x_last - x_first
+        
+        upjunc = Junction(orient_pt((fan_width/2,fc_height+self.in_width/2),startjunc.direction,startjunc.coords),90+startjunc.direction)
+        downjunc = Junction(orient_pt((fan_width/2,-fc_height-self.in_width/2),startjunc.direction,startjunc.coords),-90+startjunc.direction)
 
+        CStraight(s,startjunc=upjunc,settings={'length':self.wide_region_length,'width':fan_width})
+        CStraightTaper(s,settings={'start_width':fan_width,'stop_width':self.piezo_width,'length':self.piezo_taper_length})
+        self.cxns[cxns_names[1]] = s.last.copyjunc()
+        
+        CStraight(s,startjunc=downjunc,settings={'length':self.wide_region_length,'width':fan_width})
+        CStraightTaper(s,settings={'start_width':fan_width,'stop_width':self.piezo_width,'length':self.piezo_taper_length})
+        self.cxns[cxns_names[2]] = s.last.copyjunc()
+        
+        s.last = self.cxns[cxns_names[5]].copyjunc()
+        
+        self.height = self.in_width/2 + fc_height + self.wide_region_length + self.piezo_taper_length
+
+
+        

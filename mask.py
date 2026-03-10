@@ -76,3 +76,20 @@ class ChipBorder:
         # not the most robust but whatever
         pts = [(-x/2,-y/2),(x/2,-y/2),(x/2,y/2),(-x/2,y/2),(-x/2,-y/2)]  
         s.drawing.add_lwpolyline(pts)
+        
+class ThickBorder:
+    
+    def __init__(self,structure,width):
+        
+        s=structure
+        if type(s.size) is tuple:
+            x = s.size[0]
+            y = s.size[1]
+        else:
+            x = s.size
+            y = s.size
+        # not the most robust but whatever
+        pts_outer = [(-(x+width)/2,-(y+width)/2),((x+width)/2,-(y+width)/2),((x+width)/2,(y+width)/2),(-(x+width)/2,(y+width)/2),(-(x+width)/2,-(y+width)/2)]  
+        pts_inner = [(-(x-width)/2,-(y-width)/2),((x-width)/2,-(y-width)/2),((x-width)/2,(y-width)/2),(-(x-width)/2,(y-width)/2),(-(x-width)/2,-(y-width)/2)]
+        s.drawing.add_lwpolyline(pts_outer)
+        s.drawing.add_lwpolyline(pts_inner)

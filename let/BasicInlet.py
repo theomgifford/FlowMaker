@@ -3,10 +3,11 @@ from junction import Junction
 from component import Component
 import numpy as np
 
+from let.Let import Let
 from channel.CStraightTaper import CStraightTaper
 from channel.CStraight import CStraight
 
-class BasicInlet(Component):
+class BasicInlet(Let):
     """
     
     creates a inlet/outlet
@@ -47,9 +48,7 @@ class BasicInlet(Component):
         s=structure
         
         comp_key = 'BasicInlet'
-        global_keys = ['channel_width']
-        object_keys = ['cxn_width'] # which correspond to the extract global_keys
-        Component.__init__(self,structure,comp_key,global_keys,object_keys,settings)
+        super().__init__(structure,startjunc,settings,comp_key)
         settings = self.settings
         
         s = structure
@@ -77,6 +76,8 @@ class BasicInlet(Component):
         
         s.last = startjunc.copyjunc()
         self.cxns = {cxns_names[0]:startjunc.copyjunc()}
+        
+        self.length = self.body_length = self.taper_length + self.body_width/2
         
 
     
