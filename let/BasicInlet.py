@@ -13,10 +13,10 @@ class BasicInlet(Let):
     creates a inlet/outlet
         
     settings:
-        width_body: width of fattest part of inlet
-        width_cxn: width of connecting part of inlet
+        body_width: width of fattest part of inlet
+        cxn_width: width of connecting part of inlet
         taper_length: length of tapering section
-        length_body: length of fattest part of inlet
+        body_length: length of fattest part of inlet
         type: see note below
         
         if type is 'auto', 
@@ -48,7 +48,9 @@ class BasicInlet(Let):
         s=structure
         
         comp_key = 'BasicInlet'
-        super().__init__(structure,startjunc,settings,comp_key)
+        global_keys = ['channel_width']
+        object_keys = ['cxn_width'] 
+        super().__init__(structure,startjunc,settings,comp_key,global_keys,object_keys)
         settings = self.settings
         
         s = structure
@@ -67,7 +69,7 @@ class BasicInlet(Let):
         CStraight(s,settings={'length':self.body_length,'width':self.body_width})
         
         num_segments = np.abs(np.round(self.segments/2)).astype(int)
-        pts=arc_pts(-90,90,self.body_width/2,num_segments)
+        pts=arc_pts(-90,90,self.body_width/2,num_segments+1)
         pts.append(pts[0])
         pts=orient_pts(pts,s.last.direction,s.last.coords)
         

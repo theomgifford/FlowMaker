@@ -118,7 +118,9 @@ class CSharpBend(Component):
     
         #lower gap
         num_segments = np.abs(np.round(self.segments*self.turn_angle/360)).astype(int) #based on what proportion of 360 the subtended angle is
-
+        if num_segments < 2:
+            print("needs more segments!!!")
+            num_segments = 2
         pts1=arc_pts(self.astart_angle,self.astop_angle,self.radius+self.width/2,num_segments)
         pts1.append((0,0))
         pts1.append(pts1[0])

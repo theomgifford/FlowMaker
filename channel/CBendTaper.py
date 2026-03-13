@@ -128,8 +128,8 @@ class CBendTaper(Component):
                 pts.append(p)
             return pts
         
-        pts1=taper_arc_pts(self.astart_angle,self.astop_angle,self.radius+self.start_width/2.,self.radius+self.stop_width/2.,num_segments)
-        pts1.extend(taper_arc_pts(self.astop_angle,self.astart_angle,self.radius-self.stop_width/2.,self.radius-self.start_width/2.,num_segments))
+        pts1=taper_arc_pts(self.astart_angle,self.astop_angle,self.radius+self.start_width/2.,self.radius+self.stop_width/2.,num_segments+1)
+        pts1.extend(taper_arc_pts(self.astop_angle,self.astart_angle,self.radius-self.stop_width/2.,self.radius-self.start_width/2.,num_segments+1))
         pts1.append(pts1[0])
       
         if self.structure.global_write and self.structure.local_write:

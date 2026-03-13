@@ -27,10 +27,9 @@ class Let(Component):
         if type is 'end'
             the Let is an ending Let
     """
-    def __init__(self, structure, startjunc, settings, comp_key):
+    def __init__(self, structure, startjunc, settings, comp_key, global_keys, object_keys):
         
-        global_keys = ['channel_width']
-        object_keys = ['width_cxn'] # which correspond to the extract global_keys
+        # which correspond to the extract global_keys
         super().__init__(structure,comp_key,global_keys,object_keys,settings)
         
         s = structure
@@ -42,5 +41,7 @@ class Let(Component):
         else:
             if startjunc is None: # end
                 startjunc = s.last.reverse()
+                self.type = 'end'
             else: # start
                 s.last = startjunc.reverse()
+                self.type = 'start'

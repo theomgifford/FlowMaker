@@ -23,6 +23,7 @@ from channel.CSharpTurn import CSharpTurn
 from channel.CSharpBend import CSharpBend
 from focusing.CrossGenerator import CrossGenerator
 from let.BasicInlet import BasicInlet
+from let.SheathSplitCrossoverInlet import SheathSplitCrossoverInlet
 from split.BasicSortTwo import BasicSortTwo
 from split.BasicSortThree import BasicSortThree
 from focusing.BasicFocusStreams import BasicFocusStreams
@@ -36,7 +37,7 @@ from alignment.TetratriangleCrossPos import TetratriangleCrossPos
 from alignment.TetratriangleCrossNeg import TetratriangleCrossNeg
 from alignment.TetratriangleSeries import TetratriangleSeries
 from alignment.TetratriangleCrossSeries import TetratriangleCrossSeries
-# from DrawCodes.CAD_codes.cpw.CPWLinearTaper import CPWLinearTaper
+from split.UnevenSplit import UnevenSplit
 
 defaults = {}
 defaults['channel_width'] = 200
@@ -65,8 +66,8 @@ CSharpBend(chip,settings={'turn_angle':90})
 startjunc2 = Junction((1000-size/2,5000-size/2),60)
 
 CStraight(chip,startjunc=startjunc2)
-CTriTurn(chip,settings={'stop_width':np.sqrt(2)*defaults['channel_width'],'turn_angle':120})
-CStraight(chip,settings={'width':np.sqrt(2)*defaults['channel_width'],'length':500})
+CTriTurn(chip,settings={'stop_width':1*defaults['channel_width'],'turn_angle':5})
+CStraight(chip,settings={'width':1*defaults['channel_width'],'length':500})
 
 startjunc3 = Junction((1000-size/2,9000-size/2),60)
 
@@ -149,6 +150,50 @@ TetratriangleCrossSeries(chip,startjunc=TTCS_junc_2,settings={'layer':2})
 
 startjunc12 = Junction((1200,-5000),30)
 PiezoSortRegion(chip,startjunc=startjunc12)
+
+uneven_split_settings = {}
+uneven_split_settings['left_angle'] = 30
+uneven_split_settings['right_angle'] = -5
+uneven_split_settings['left_width'] = 200
+uneven_split_settings['right_width'] = 100
+uneven_split_settings['left_offset'] = 200
+uneven_split_settings['right_offset'] = 0
+uneven_split_settings['left_initial_angle'] = 0
+uneven_split_settings['right_initial_angle'] = 0
+
+startjunc13 = Junction((4000,-5000),30)
+uneven_split_in = UnevenSplit(chip,startjunc=startjunc13,settings={'start':'in',**uneven_split_settings})
+CStraight(chip,startjunc=uneven_split_in.cxns['in'],settings={'length':600,'width':uneven_split_in.in_width})
+CStraight(chip,startjunc=uneven_split_in.cxns['left'],settings={'length':600,'width':uneven_split_in.left_width})
+CStraight(chip,startjunc=uneven_split_in.cxns['right'],settings={'length':600,'width':uneven_split_in.right_width})
+
+uneven_split_left = UnevenSplit(chip,startjunc=startjunc13.add((2000,0),0),settings={'start':'left',**uneven_split_settings})
+CStraight(chip,startjunc=uneven_split_left.cxns['in'],settings={'length':600,'width':uneven_split_left.in_width})
+CStraight(chip,startjunc=uneven_split_left.cxns['left'],settings={'length':600,'width':uneven_split_left.left_width})
+CStraight(chip,startjunc=uneven_split_left.cxns['right'],settings={'length':600,'width':uneven_split_left.right_width})
+
+uneven_split_right = UnevenSplit(chip,startjunc=startjunc13.add((4000,0),0),settings={'start':'right',**uneven_split_settings})
+CStraight(chip,startjunc=uneven_split_right.cxns['in'],settings={'length':600,'width':uneven_split_right.in_width})
+CStraight(chip,startjunc=uneven_split_right.cxns['left'],settings={'length':600,'width':uneven_split_right.left_width})
+CStraight(chip,startjunc=uneven_split_right.cxns['right'],settings={'length':600,'width':uneven_split_right.right_width})
+
+robust_sheath_inlet_settings = {}
+
+robust_sheath_inlet_settings['taper_length'] = 200
+robust_sheath_inlet_settings['body_width'] = 1500
+robust_sheath_inlet_settings['body_length'] = 1000
+robust_sheath_inlet_settings['middle_gap'] = 100
+robust_sheath_inlet_settings['inside_angle'] = 30
+robust_sheath_inlet_settings['outside_angle'] = -10
+robust_sheath_inlet_settings['cxn_angle'] = 30
+# robust_sheath_inlet_settings['inside_width'] = None
+# robust_sheath_inlet_settings['outside_width'] = None
+# robust_sheath_inlet_settings['cxn_width'] = None
+
+startjunc14 = Junction((4000,-1000),60)
+robust_sheath_inlet = SheathSplitCrossoverInlet(chip,startjunc=startjunc14,settings=robust_sheath_inlet_settings)
+CStraight(chip,startjunc=robust_sheath_inlet.cxns['left'])
+CStraight(chip,startjunc=robust_sheath_inlet.cxns['right'])
 
 #save
 saveDir = r'C:\Users\theom\Documents\Scarcelli\Flow CAD'

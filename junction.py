@@ -27,7 +27,7 @@ class Junction():
             if len(coords) == 2:
                 if (np.isscalar(coords[0]) == True) and (np.isscalar(coords[1]) == True):
                     self.coords = coords
-                    self.direction = direction
+                    self.direction = (direction + 180) % 360 - 180
                 else:
                     raise TypeError("coordinates must contain two scalars")
                     return
@@ -42,7 +42,7 @@ class Junction():
     def copyjunc(self):
         return Junction(self.coords,self.direction)
     def add(self,coords,direction):
-        net_direction = (self.direction + direction) % 360
+        net_direction = (self.direction + direction + 180) % 360 - 180
         return Junction((self.coords[0]+coords[0],self.coords[1]+coords[1]),net_direction)
     def reverse(self):
         net_direction = self.direction % 360 - 180

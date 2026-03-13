@@ -45,11 +45,11 @@ class SimpleStraightConnector(Component):
         y_diff = stop_coords[1]-start_coords[1]
         
         coords_dir0 = rotate_pt((x_diff,y_diff),-startjunc.direction)
-        
+        self.resid = coords_dir0[1]
         # print(coords_dir0[0])
         # print(coords_dir0[1])
         # print(abs((startjunc.direction-self.target_junc.direction) % 180))
-        if abs(coords_dir0[1]) >= self.tol or abs((startjunc.direction-self.target_junc.direction) % 180) >= self.tol:
+        if abs(self.resid) >= self.tol or abs((startjunc.direction-self.target_junc.direction) % 180) >= self.tol:
             print("Junctions not aligned!")
             return
         
