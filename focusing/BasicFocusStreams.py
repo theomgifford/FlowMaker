@@ -31,6 +31,7 @@ class BasicFocusStreams(Component):
         settings = self.settings
         
         if startjunc is None: startjunc=s.last.copyjunc()
+        
         self.cxns = {}
         self.cxns[cxns_names[0]] = startjunc.reverse()
         
