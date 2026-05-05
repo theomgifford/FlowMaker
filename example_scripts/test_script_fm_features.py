@@ -38,6 +38,7 @@ from alignment.TetratriangleCrossNeg import TetratriangleCrossNeg
 from alignment.TetratriangleSeries import TetratriangleSeries
 from alignment.TetratriangleCrossSeries import TetratriangleCrossSeries
 from split.UnevenSplit import UnevenSplit
+from focusing.Focus3D import Focus3D
 
 defaults = {}
 defaults['channel_width'] = 200
@@ -194,6 +195,17 @@ startjunc14 = Junction((4000,-1000),60)
 robust_sheath_inlet = SheathSplitCrossoverInlet(chip,startjunc=startjunc14,settings=robust_sheath_inlet_settings)
 CStraight(chip,startjunc=robust_sheath_inlet.cxns['left'])
 CStraight(chip,startjunc=robust_sheath_inlet.cxns['right'])
+
+startjunc15 = Junction((-1650,3000),30)
+focus_3D = Focus3D(chip,startjunc=startjunc15,settings=Focus3D._defaults)
+CStraight(chip,startjunc=focus_3D.cxns['top'],settings={'width':focus_3D.top_width})
+CStraight(chip,startjunc=focus_3D.cxns['samp_1'],settings={'width':focus_3D.samp_width})
+CStraight(chip,startjunc=focus_3D.cxns['samp_2'],settings={'width':focus_3D.samp_width})
+CStraight(chip,startjunc=focus_3D.cxns['bottom_1'],settings={'width':focus_3D.bottom_width})
+CStraight(chip,startjunc=focus_3D.cxns['bottom_2'],settings={'width':focus_3D.bottom_width})
+CStraight(chip,startjunc=focus_3D.cxns['side_1'],settings={'width':focus_3D.side_width})
+CStraight(chip,startjunc=focus_3D.cxns['side_2'],settings={'width':focus_3D.side_width})
+CStraight(chip,startjunc=focus_3D.cxns['out'],settings={'width':focus_3D.out_width})
 
 #save
 saveDir = r'C:\Users\theom\Documents\Scarcelli\Flow CAD'
